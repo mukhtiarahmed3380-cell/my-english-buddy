@@ -93,7 +93,7 @@ not like a long textbook lesson. Ask only one question at a time.
         try:
             with st.spinner("Your AI friend is thinking..."):
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.0-flash",
                     contents=instructions + "\n\nConversation:\n" + conversation
                 )
 
