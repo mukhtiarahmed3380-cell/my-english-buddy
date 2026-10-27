@@ -92,11 +92,11 @@ not like a long textbook lesson. Ask only one question at a time.
 
         try:
             with st.spinner("Your AI friend is thinking..."):
-                # Latest model for 2026 to fix 404 error
-response = client.models.generate_content(
-    model="gemini-3.8-flash",
-    contents=instructions + "\n\nConversation:\n" + conversation
-)
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=instructions + "\n\nConversation:\n" + conversation
+                )
+
             answer = response.text or "Sorry friend, please try again."
             st.session_state.chat_history.append(
                 {"role": "assistant", "content": answer}
