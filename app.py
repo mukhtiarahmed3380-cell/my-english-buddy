@@ -26,6 +26,7 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
+# Session state initialize karna
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         {
@@ -37,15 +38,18 @@ if "chat_history" not in st.session_state:
         }
     ]
 
+if "processed_voice" not in st.session_state:
+    st.session_state.processed_voice = ""
+
 # Chat history ko display karna
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 st.subheader("🎤 Talk to your AI friend")
-st.caption("Microphone dabao, bolo, aur phir recording stop karo.")
+st.caption("Microphone dabao, bolo, aur phir recording stop karo (AI khud jawab dega).")
 
-# Mobile and Browser compatible voice recorder
+# Mobile friendly voice recorder
 spoken_text = speech_to_text(
     language="en",
     start_prompt="🎙️ Start speaking",
@@ -59,8 +63,21 @@ typed_text = st.text_input(
     placeholder="Example: Aaj mujhe college nahi jana."
 )
 
+# Logic check: Button daba ho YA naye voice inputs aaye hon
+trigger_send = False
+
 if st.button("Send message 💬"):
-    user_text = typed_text.strip() or (spoken_text or "").strip()
+    trigger_send = True
+
+if spoken_text and st.session_state.processed_voice != spoken_text:
+    st.session_state.processed_voice = spoken_text
+    trigger_send = True
+
+if trigger_send:
+    # Pehle typed text check karein, agar khali ho to voice text use karein
+    user_text = typed_text.strip()
+    if not user_text and spoken_text:
+        user_text = spoken_text.strip()
 
     if not user_text:
         st.warning("Pehle bolo ya message type karo.")
@@ -101,14 +118,13 @@ not like a long textbook lesson. Ask only one question at a time.
             st.session_state.chat_history.append(
                 {"role": "assistant", "content": answer}
             )
-
             st.rerun()
 
         except Exception as e:
             st.error("AI response nahi mil saka.")
             st.code(str(e))
 
-# AI ki aakhri baat ko sunne ka button
+# AI ki baat ko sunne ka button
 if st.session_state.chat_history:
     last_answer = next(
         (
@@ -149,6 +165,7 @@ if st.button("🔄 Start a new conversation"):
             )
         }
     ]
+    st.session_state.processed_voice = ""
     st.rerun()
 
 st.caption("Practice daily. Small steps, big progress! 💪")
